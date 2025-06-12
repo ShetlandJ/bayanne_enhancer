@@ -6,26 +6,17 @@
   "permissions": [
     "activeTab"
   ],
-  "background": {
-    "service_worker": "background.js"
-  },
   "content_scripts": [
     {
       "matches": ["https://www.bayanne.info/*"],
-      "js": ["src/content.js"]
+      "js": [
+        "src/classes/BNAButtonManager.js",
+        "src/classes/SuggestTabManager.js",
+        "src/classes/EmailButtonManager.js",
+        "src/classes/FGButtonManager.js",
+        "src/classes/UIManager.js",
+        "src/content.js"
+      ]
     }
-  ],
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "images/icon16.png",
-      "48": "images/icon48.png",
-      "128": "images/icon128.png"
-    }
-  },
-  "icons": {
-    "16": "images/icon16.png",
-    "48": "images/icon48.png",
-    "128": "images/icon128.png"
-  }
+  ]
 }

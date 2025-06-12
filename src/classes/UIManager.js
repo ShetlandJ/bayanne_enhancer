@@ -1,16 +1,9 @@
-class UIManager {
-  constructor() {
-    this.bnaButtonManager = new BNAButtonManager();
-    this.suggestTabManager = new SuggestTabManager();
-    this.emailButtonManager = new EmailButtonManager();
-  }
-
-  initialize() {
-    console.log("Initializing UI components");
-    this.bnaButtonManager.addBNAButton();
-    this.suggestTabManager.addSuggestTab();
-    this.emailButtonManager.setup();
-  }
-}
-
-export default UIManager;
+const UIManager = (function() {
+  return {
+    initialize: function() {
+      BNAButtonManager.addBNAButton();
+      FGButtonManager.addFGButton();
+      SuggestTabManager.addSuggestTab();
+    }
+  };
+})();
