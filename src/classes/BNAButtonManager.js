@@ -1,8 +1,5 @@
 const BNAButtonManager = (function() {
   const buttonId = 'bna-button';
-  function generateUrl(id) {
-    return `https://www.bayanne.info/Shetland/getperson.php?personID=${id}&tree=ID1`;
-  }
 
   function addBNAButton() {
     const nameHeader = document.getElementById('nameheader');
@@ -45,7 +42,6 @@ const BNAButtonManager = (function() {
     nameHeader.appendChild(containerDiv);
   }
   return {
-    generateUrl: generateUrl,
     addBNAButton: addBNAButton
   };
 })();

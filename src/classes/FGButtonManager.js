@@ -1,19 +1,5 @@
 const FGButtonManager = (function() {
   const buttonId = 'fg-button';
-
-  function getSurnameFirstNameParts(name) {
-    const splitName = name.split(' ');
-  
-    const surname = splitName[splitName.length - 1];
-    const firstName = splitName[0];
-    const middleNames = splitName.slice(1, splitName.length - 1).join(' ');
-  
-    return {
-      firstName,
-      middleNames,
-      surname,
-    };
-  }
   
   function getNormalNameParts(name) {
     const splitName = name.split(' ');
@@ -31,46 +17,6 @@ const FGButtonManager = (function() {
         middleNames,
         surname,
     }
-  }
-
-  function getHtmlElement(linkUrl) {
-    const anchors = document.querySelectorAll('a');
-    let element = '';
-
-    Array.from(anchors).forEach(a => {
-        if (a.href === linkUrl) {
-            element = a.parentElement;
-        }
-    });
-
-    return element;
-  }
-
-  function getPersonPopover(element) {
-    const children = element.children;
-    let popover = null;
-    
-    Array.from(children).forEach(c => {
-        if (c.classList.value === 'person-img') {
-            popover = c
-        }
-    });
-
-    return popover;
-  }
-
-  function getBDMString(popover) {
-    if (popover) {
-        if (popover.children[0]) {
-            if (popover.children[0].children[0]) {
-                if (popover.children[0].children[0].children[2]) {
-                    return popover.children[0].children[0].children[2].textContent.trim()
-                }
-            }
-        }
-    }
-
-    return false;
   }
   
   function getBirthDeathYears() {
