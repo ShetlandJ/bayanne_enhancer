@@ -13,6 +13,13 @@ const BNAButtonManager = (function() {
       return;
     }
 
+    const nameObj = NameUtils.getNormalNameParts(fullName);
+    const firstName = nameObj.firstName;
+    const middleNames = nameObj.middleNames;
+    const optimalSurname = NameUtils.getOptimalSurname(nameObj.surname);
+    
+    const searchName = middleNames ? `${firstName} ${middleNames} ${optimalSurname}` : `${firstName} ${optimalSurname}`;
+
     const containerDiv = document.createElement('div');
     containerDiv.style.display = 'flex';
     containerDiv.style.alignItems = 'center';
@@ -31,7 +38,7 @@ const BNAButtonManager = (function() {
     bnaButton.style.textDecoration = 'none';
     bnaButton.style.display = 'inline-block';
 
-    const searchQuery = encodeURIComponent(`"${fullName}"`);
+    const searchQuery = encodeURIComponent(`"${searchName}"`);
     bnaButton.href = `https://www.britishnewspaperarchive.co.uk/search/results?basicsearch=${searchQuery}&exactsearch=false&county=shetland%2c%20scotland&retrievecountrycounts=false&mostspecificlocation=shetland%2c%20scotland`;
     bnaButton.target = '_blank';
 

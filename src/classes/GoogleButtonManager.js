@@ -1,5 +1,5 @@
-const FGButtonManager = (function() {
-  const buttonId = 'fg-button';
+const GoogleButtonManager = (function() {
+  const buttonId = 'google-button';
   
   function getBirthDeathYears() {
     const spans = document.getElementsByClassName('normal');
@@ -16,7 +16,7 @@ const FGButtonManager = (function() {
     return { birthYear: '', deathYear: '' };
   }
 
-  function addFGButton() {
+  function addGoogleButton() {
     const nameHeader = document.getElementById('nameheader');
     if (!nameHeader) return;
 
@@ -37,7 +37,7 @@ const FGButtonManager = (function() {
     const nameObj = NameUtils.getNormalNameParts(fullName);
     const firstName = nameObj.firstName;
     const middleNames = nameObj.middleNames;
-    const surname = NameUtils.getOptimalSurname(nameObj.surname);
+    const optimalSurname = NameUtils.getOptimalSurname(nameObj.surname);
 
     const { birthYear, deathYear } = getBirthDeathYears();
 
@@ -59,34 +59,47 @@ const FGButtonManager = (function() {
       nameHeader.appendChild(containerDiv);
     }
 
-    const fgButton = document.createElement('a');
-    fgButton.id = buttonId;
-    fgButton.textContent = 'FG';
-    fgButton.style.fontSize = '14px';
-    fgButton.style.padding = '3px 8px';
-    fgButton.style.backgroundColor = '#6c757d'; 
-    fgButton.style.color = 'white';
-    fgButton.style.borderRadius = '3px';
-    fgButton.style.textDecoration = 'none';
-    fgButton.style.display = 'inline-block';
-    fgButton.style.marginLeft = '5px';
+    const googleButton = document.createElement('a');
+    googleButton.id = buttonId;
+    googleButton.textContent = 'G';
+    googleButton.style.fontSize = '14px';
+    googleButton.style.padding = '3px 8px';
+    googleButton.style.backgroundColor = '#db4437';
+    googleButton.style.color = 'white';
+    googleButton.style.borderRadius = '3px';
+    googleButton.style.textDecoration = 'none';
+    googleButton.style.display = 'inline-block';
+    googleButton.style.marginLeft = '5px';
     
+    let searchName;
+    if (middleNames) {
+      searchName = `${firstName} ${middleNames} ${optimalSurname}`;
+    } else {
+      searchName = `${firstName} ${optimalSurname}`;
+    }
     
-    const http = 'https://www.findagrave.com/memorial/search?';
-    const fn = `firstname=${encodeURIComponent(firstName)}`;
-    const mn = `middlename=${encodeURIComponent(middleNames)}`;
-    const sn = `lastname=${encodeURIComponent(surname)}`;
-    const by = `birthyear=${birthYear}&birthyearfilter=`;
-    const dy = `deathyear=${deathYear}&deathyearfilter=`;
-    const end = 'location=&locationId=&memorialid=&mcid=&linkedToName=&datefilter=&orderby=';
-    const url = `${http}${fn}&${mn}&${sn}&${by}&${dy}&${end}`;
+    let searchQuery = `"${searchName}"`;
     
-    fgButton.href = url;
-    fgButton.target = '_blank';
+    if (birthYear || deathYear) {
+      if (birthYear && deathYear) {
+        searchQuery += ` ${birthYear}-${deathYear}`;
+      } else if (birthYear) {
+        searchQuery += ` born ${birthYear}`;
+      } else if (deathYear) {
+        searchQuery += ` died ${deathYear}`;
+      }
+    }
     
-    containerDiv.appendChild(fgButton);
+    const encodedQuery = encodeURIComponent(searchQuery);
+    const url = `https://www.google.com/search?q=${encodedQuery}`;
+    
+    googleButton.href = url;
+    googleButton.target = '_blank';
+    
+    containerDiv.appendChild(googleButton);
   }
+  
   return {
-    addFGButton: addFGButton
+    addGoogleButton: addGoogleButton
   };
 })();

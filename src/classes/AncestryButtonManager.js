@@ -1,5 +1,5 @@
-const FGButtonManager = (function() {
-  const buttonId = 'fg-button';
+const AncestryButtonManager = (function() {
+  const buttonId = 'ancestry-button';
   
   function getBirthDeathYears() {
     const spans = document.getElementsByClassName('normal');
@@ -16,7 +16,7 @@ const FGButtonManager = (function() {
     return { birthYear: '', deathYear: '' };
   }
 
-  function addFGButton() {
+  function addAncestryButton() {
     const nameHeader = document.getElementById('nameheader');
     if (!nameHeader) return;
 
@@ -37,7 +37,7 @@ const FGButtonManager = (function() {
     const nameObj = NameUtils.getNormalNameParts(fullName);
     const firstName = nameObj.firstName;
     const middleNames = nameObj.middleNames;
-    const surname = NameUtils.getOptimalSurname(nameObj.surname);
+    const surname = nameObj.surname;
 
     const { birthYear, deathYear } = getBirthDeathYears();
 
@@ -59,34 +59,41 @@ const FGButtonManager = (function() {
       nameHeader.appendChild(containerDiv);
     }
 
-    const fgButton = document.createElement('a');
-    fgButton.id = buttonId;
-    fgButton.textContent = 'FG';
-    fgButton.style.fontSize = '14px';
-    fgButton.style.padding = '3px 8px';
-    fgButton.style.backgroundColor = '#6c757d'; 
-    fgButton.style.color = 'white';
-    fgButton.style.borderRadius = '3px';
-    fgButton.style.textDecoration = 'none';
-    fgButton.style.display = 'inline-block';
-    fgButton.style.marginLeft = '5px';
+    const ancestryButton = document.createElement('a');
+    ancestryButton.id = buttonId;
+    ancestryButton.textContent = 'A';
+    ancestryButton.style.fontSize = '14px';
+    ancestryButton.style.padding = '3px 8px';
+    ancestryButton.style.backgroundColor = '#28a745';
+    ancestryButton.style.color = 'white';
+    ancestryButton.style.borderRadius = '3px';
+    ancestryButton.style.textDecoration = 'none';
+    ancestryButton.style.display = 'inline-block';
+    ancestryButton.style.marginLeft = '5px';
     
+    let nameParam;
+    if (middleNames) {
+      nameParam = `${firstName}+${middleNames.replace(/\s+/g, '+')}+${surname}_${surname}`;
+    } else {
+      nameParam = `${firstName}_${surname}`;
+    }
     
-    const http = 'https://www.findagrave.com/memorial/search?';
-    const fn = `firstname=${encodeURIComponent(firstName)}`;
-    const mn = `middlename=${encodeURIComponent(middleNames)}`;
-    const sn = `lastname=${encodeURIComponent(surname)}`;
-    const by = `birthyear=${birthYear}&birthyearfilter=`;
-    const dy = `deathyear=${deathYear}&deathyearfilter=`;
-    const end = 'location=&locationId=&memorialid=&mcid=&linkedToName=&datefilter=&orderby=';
-    const url = `${http}${fn}&${mn}&${sn}&${by}&${dy}&${end}`;
+    let url = `https://www.ancestry.co.uk/search/?name=${nameParam}&searchMode=advanced`;
     
-    fgButton.href = url;
-    fgButton.target = '_blank';
+    if (birthYear) {
+      url += `&birth=${birthYear}`;
+    }
+    if (deathYear) {
+      url += `&death=${deathYear}`;
+    }
     
-    containerDiv.appendChild(fgButton);
+    ancestryButton.href = url;
+    ancestryButton.target = '_blank';
+    
+    containerDiv.appendChild(ancestryButton);
   }
+  
   return {
-    addFGButton: addFGButton
+    addAncestryButton: addAncestryButton
   };
 })();

@@ -3,6 +3,8 @@ const UIManager = (function() {
     initialize: function() {
       BNAButtonManager.addBNAButton();
       FGButtonManager.addFGButton();
+      AncestryButtonManager.addAncestryButton();
+      GoogleButtonManager.addGoogleButton();
       SuggestTabManager.addSuggestTab();
     }
   };
