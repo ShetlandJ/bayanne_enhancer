@@ -7,7 +7,7 @@ const EmailButtonManager = (function() {
 
   function createEmailButton() {
     const emailButton = document.createElement('button');
-    emailButton.textContent = 'Send to Susan';
+    emailButton.textContent = 'Send to SHFS';
     emailButton.style.marginLeft = '10px';
     emailButton.type = 'button';
 

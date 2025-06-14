@@ -73,7 +73,7 @@ const AncestryButtonManager = (function() {
     
     let nameParam;
     if (middleNames) {
-      nameParam = `${firstName}+${middleNames.replace(/\s+/g, '+')}+${surname}_${surname}`;
+      nameParam = `${firstName}+${middleNames.replace(/\s+/g, '+')}_${surname}`;
     } else {
       nameParam = `${firstName}_${surname}`;
     }
