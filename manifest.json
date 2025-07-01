@@ -8,7 +8,7 @@
   ],
   "content_scripts": [
     {
-      "matches": ["https://www.bayanne.info/*"],
+      "matches": ["https://www.bayanne.info/*", "https://www.scotlandspeople.gov.uk/*"],
       "js": [
         "src/classes/NameUtils.js",
         "src/classes/BNAButtonManager.js",
@@ -17,6 +17,7 @@
         "src/classes/FGButtonManager.js",
         "src/classes/AncestryButtonManager.js",
         "src/classes/GoogleButtonManager.js",
+        "src/classes/ScotlandsPeopleButtonManager.js",
         "src/classes/UIManager.js",
         "src/content.js"
       ]
