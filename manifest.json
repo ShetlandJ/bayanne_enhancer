@@ -8,7 +8,7 @@
   ],
   "content_scripts": [
     {
-      "matches": ["https://www.bayanne.info/*", "https://www.scotlandspeople.gov.uk/*", "https://www.ancestry.co.uk/*"],
+      "matches": ["https://www.bayanne.info/*", "https://www.scotlandspeople.gov.uk/*", "https://www.ancestry.co.uk/*", "https://www.findagrave.com/*"],
       "js": [
         "src/classes/NameUtils.js",
         "src/classes/BNAButtonManager.js",

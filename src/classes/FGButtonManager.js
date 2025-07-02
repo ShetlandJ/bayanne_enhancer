@@ -1,6 +1,76 @@
 const FGButtonManager = (function() {
   const buttonId = 'fg-button';
   
+  function addCopyButtonToFGPage() {
+    // Check if we're on a Find A Grave memorial page
+    if (!window.location.href.match(/findagrave\.com\/memorial\/\d+/)) {
+      return;
+    }
+    
+    // Find the death date element
+    const deathDateElement = document.getElementById('deathDateLabel');
+    if (!deathDateElement) {
+      return;
+    }
+    
+    // Check if we've already added a button
+    if (document.querySelector('.fg-copy-button')) {
+      return;
+    }
+    
+    // Get death date text
+    const deathDate = deathDateElement.textContent.trim();
+    
+    // Get death location if available
+    let deathLocation = '';
+    const deathLocationElement = document.getElementById('deathLocationLabel');
+    if (deathLocationElement) {
+      deathLocation = deathLocationElement.textContent.trim();
+    }
+    
+    // Create copy button
+    const copyButton = document.createElement('span');
+    copyButton.className = 'fg-copy-button';
+    copyButton.innerHTML = ' 📋'; // clipboard icon with space before
+    copyButton.title = 'Copy URL, death date and location';
+    copyButton.style.cursor = 'pointer';
+    copyButton.style.marginLeft = '8px';
+    copyButton.style.fontSize = '16px';
+    
+    // Add click handler
+    copyButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Get URL and death info
+      const url = window.location.href;
+      let copyText = `${url}\nDeath date: ${deathDate}`;
+      
+      // Add location if available
+      if (deathLocation) {
+        copyText += `\nLocation: ${deathLocation}`;
+      }
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(copyText).then(() => {
+        // Show feedback
+        copyButton.innerHTML = ' ✓';
+        copyButton.style.color = 'green';
+        
+        // Reset after 1.5 seconds
+        setTimeout(() => {
+          copyButton.innerHTML = ' 📋';
+          copyButton.style.color = '';
+        }, 1500);
+      });
+      
+      return false;
+    });
+    
+    // Add the button after the death date
+    deathDateElement.appendChild(copyButton);
+  }
+  
   function getBirthDeathYears() {
     const spans = document.getElementsByClassName('normal');
     if (spans && spans.length > 1) {
@@ -86,7 +156,33 @@ const FGButtonManager = (function() {
     
     containerDiv.appendChild(fgButton);
   }
+  // Function to initialize both FG-related features
+  function initialize() {
+    addFGButton();
+    
+    // For the copy button on Find A Grave pages
+    if (window.location.href.includes('findagrave.com')) {
+      // Add copy button if we're already on a memorial page
+      addCopyButtonToFGPage();
+      
+      // Set up observer for dynamic content or navigation
+      const observer = new MutationObserver((mutations) => {
+        if (window.location.href.match(/findagrave\.com\/memorial\/\d+/)) {
+          addCopyButtonToFGPage();
+        }
+      });
+      
+      // Start observing document for changes
+      observer.observe(document, { 
+        childList: true, 
+        subtree: true 
+      });
+    }
+  }
+  
   return {
-    addFGButton: addFGButton
+    addFGButton: addFGButton,
+    addCopyButtonToFGPage: addCopyButtonToFGPage,
+    initialize: initialize
   };
 })();
