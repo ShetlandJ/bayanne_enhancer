@@ -3,7 +3,7 @@ const UIManager = (function() {
     initialize: function() {
       BNAButtonManager.addBNAButton();
       FGButtonManager.addFGButton();
-      AncestryButtonManager.addAncestryButton();
+      AncestryButtonManager.initialize();
       GoogleButtonManager.addGoogleButton();
       ScotlandsPeopleButtonManager.addScotlandsPeopleButton();
       ScotlandsPeopleButtonManager.autoFillSearchForm();

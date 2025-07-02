@@ -1,6 +1,62 @@
 const AncestryButtonManager = (function() {
   const buttonId = 'ancestry-button';
   
+  function addCopyButtonToUserPage() {
+    // Check if this is an Ancestry person page
+    if (!window.location.href.includes('ancestry.co.uk/family-tree/person/tree/')) {
+      return;
+    }
+    
+    // Find the death event line
+    const deathEventLine = document.querySelector('.deathEvent');
+    if (!deathEventLine) {
+      return;
+    }
+    
+    // Check if we already added a button
+    if (deathEventLine.querySelector('.ancestry-copy-button')) {
+      return;
+    }
+    
+    // Get the death date
+    const deathDateElement = deathEventLine.querySelector('.deathDate');
+    const deathDate = deathDateElement ? deathDateElement.textContent.trim() : '';
+    
+    // Create copy button
+    const copyButton = document.createElement('span');
+    copyButton.className = 'ancestry-copy-button';
+    copyButton.innerHTML = '📋'; // clipboard icon
+    copyButton.title = 'Copy URL and death date';
+    copyButton.style.cursor = 'pointer';
+    copyButton.style.marginLeft = '10px';
+    copyButton.style.fontSize = '16px';
+    
+    // Add click handler
+    copyButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Get URL and death date
+      const url = window.location.href;
+      const copyText = `${url}\nDeath date: ${deathDate}`;
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(copyText).then(() => {
+        // Show feedback
+        copyButton.innerHTML = '✓';
+        copyButton.style.color = 'green';
+        
+        // Reset after 1.5 seconds
+        setTimeout(() => {
+          copyButton.innerHTML = '📋';
+          copyButton.style.color = '';
+        }, 1500);
+      });
+    });
+    
+    // Add the button to the DOM
+    deathEventLine.appendChild(copyButton);
+  }
+  
   function getBirthDeathYears() {
     const spans = document.getElementsByClassName('normal');
     if (spans && spans.length > 1) {
@@ -78,7 +134,7 @@ const AncestryButtonManager = (function() {
       nameParam = `${firstName}_${surname}`;
     }
     
-    let url = `https://www.ancestry.co.uk/search/?name=${nameParam}&searchMode=advanced`;
+    let url = `https://www.ancestry.co.uk/search/categories/42/?name=${nameParam}&searchMode=advanced`;
     
     if (birthYear) {
       url += `&birth=${birthYear}`;
@@ -93,7 +149,34 @@ const AncestryButtonManager = (function() {
     containerDiv.appendChild(ancestryButton);
   }
   
+  // Function to initialize both Ancestry-related features
+  function initialize() {
+    addAncestryButton();
+    // For the copy button on Ancestry pages, we need to run this on load
+    // and also set up a MutationObserver to catch dynamic page loads
+    if (window.location.href.includes('ancestry.co.uk')) {
+      // Add copy button if we're already on a person page
+      addCopyButtonToUserPage();
+      
+      // Set up observer for SPA navigation
+      const observer = new MutationObserver((mutations) => {
+       
+        if (window.location.href.includes('/family-tree/person/tree/')) {        
+          addCopyButtonToUserPage();
+        }
+      });
+      
+      // Start observing the document body for DOM changes
+      observer.observe(document.body, { 
+        childList: true,
+        subtree: true 
+      });
+    }
+  }
+  
   return {
-    addAncestryButton: addAncestryButton
+    addAncestryButton: addAncestryButton,
+    addCopyButtonToUserPage: addCopyButtonToUserPage,
+    initialize: initialize
   };
 })();

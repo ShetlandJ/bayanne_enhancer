@@ -76,7 +76,15 @@ const ScotlandsPeopleButtonManager = (function() {
     
     let forenames = firstName;
     if (middleNames) {
-      forenames = `${firstName} ${middleNames}`;
+      // If there are middle names, process them
+      const middleNameArray = middleNames.split(' ');
+      
+      // For Scotland's People, limit to first name + first middle name if there are multiple middle names
+      if (middleNameArray.length > 1) {
+        forenames = `${firstName} ${middleNameArray[0]}`;
+      } else {
+        forenames = `${firstName} ${middleNames}`;
+      }
     }
     
     params.append('forename', forenames);
