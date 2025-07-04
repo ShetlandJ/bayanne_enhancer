@@ -5,8 +5,7 @@ const UIManager = (function() {
       FGButtonManager.initialize();
       AncestryButtonManager.initialize();
       GoogleButtonManager.addGoogleButton();
-      ScotlandsPeopleButtonManager.addScotlandsPeopleButton();
-      ScotlandsPeopleButtonManager.autoFillSearchForm();
+      ScotlandsPeopleButtonManager.initialize();
       SuggestTabManager.addSuggestTab();
     }
   };

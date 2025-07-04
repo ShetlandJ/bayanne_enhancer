@@ -7,8 +7,9 @@ const FGButtonManager = (function() {
       return;
     }
     
-    // Find the death date element
-    const deathDateElement = document.getElementById('deathDateLabel');
+    // Find the death date element - try both formats
+    const deathDateElement = document.getElementById('deathDateLabel') || 
+                           document.querySelector('.deathDate');
     if (!deathDateElement) {
       return;
     }
@@ -20,13 +21,6 @@ const FGButtonManager = (function() {
     
     // Get death date text
     const deathDate = deathDateElement.textContent.trim();
-    
-    // Get death location if available
-    let deathLocation = '';
-    const deathLocationElement = document.getElementById('deathLocationLabel');
-    if (deathLocationElement) {
-      deathLocation = deathLocationElement.textContent.trim();
-    }
     
     // Create copy button
     const copyButton = document.createElement('span');
@@ -42,6 +36,24 @@ const FGButtonManager = (function() {
       e.preventDefault();
       e.stopPropagation();
       
+      // Get death location at the time of clicking - try multiple possible selectors
+      let deathLocation = '';
+      
+      // Try standard location ID first - this is a DIV with id="deathLocationLabel" and class="place"
+      const deathLocationElement = document.getElementById('deathLocationLabel');
+      
+      if (deathLocationElement) {
+        deathLocation = deathLocationElement.textContent.trim();
+      } 
+      // Try the deathPlace span class if the first attempt failed
+      else {
+        const deathPlaceSpan = document.querySelector('.deathPlace');
+        
+        if (deathPlaceSpan) {
+          deathLocation = deathPlaceSpan.textContent.trim();
+        }
+      }
+      
       // Get URL and death info
       const url = window.location.href;
       let copyText = `${url}\nDeath date: ${deathDate}`;
@@ -49,6 +61,31 @@ const FGButtonManager = (function() {
       // Add location if available
       if (deathLocation) {
         copyText += `\nLocation: ${deathLocation}`;
+      } else {
+        // Last resort - try multiple specific structures
+        let deathPlaceElement = null;
+        
+        // Try various selectors that might contain the death location
+        const selectors = [
+          'div#deathLocationLabel.place',          // Main structure in your example
+          'span.info span.deathPlace',             // Alternative structure
+          'dd .deathPlace',                        // Another possible structure
+          'dd div.place[itemprop="deathPlace"]',   // Based on your HTML structure
+          'div[itemprop="deathPlace"]'             // Generic itemprop selector
+        ];
+        
+        // Try each selector until we find something
+        for (const selector of selectors) {
+          deathPlaceElement = document.querySelector(selector);
+          if (deathPlaceElement) {
+            deathLocation = deathPlaceElement.textContent.trim();
+            break;
+          }
+        }
+        
+        if (deathLocation) {
+          copyText += `\nLocation: ${deathLocation}`;
+        }
       }
       
       // Copy to clipboard
@@ -68,7 +105,20 @@ const FGButtonManager = (function() {
     });
     
     // Add the button after the death date
-    deathDateElement.appendChild(copyButton);
+    // If it's an element where we can append a child directly (like the deathDateLabel)
+    if (deathDateElement.tagName && 
+        (deathDateElement.tagName.toLowerCase() === 'span' || 
+         deathDateElement.tagName.toLowerCase() === 'div')) {
+      deathDateElement.appendChild(copyButton);
+    } 
+    // If it's a more complex element structure (like with the .deathDate class)
+    else {
+      // Find the parent that we can append to
+      const parentElement = deathDateElement.parentElement;
+      if (parentElement) {
+        parentElement.appendChild(copyButton);
+      }
+    }
   }
   
   function getBirthDeathYears() {
@@ -167,16 +217,50 @@ const FGButtonManager = (function() {
       
       // Set up observer for dynamic content or navigation
       const observer = new MutationObserver((mutations) => {
+        // Check if we're on a memorial page
         if (window.location.href.match(/findagrave\.com\/memorial\/\d+/)) {
-          addCopyButtonToFGPage();
+          // Look for specific elements that indicate we should add the button
+          for (const mutation of mutations) {
+            // If death date or location elements were added
+            if (mutation.addedNodes.length && 
+                (document.getElementById('deathDateLabel') || 
+                 document.querySelector('.deathDate'))) {
+              addCopyButtonToFGPage();
+              break;
+            }
+          }
+          
+          // Also periodically check if button needs to be added (as fallback)
+          // This helps with SPA navigation where mutations might not catch everything
+          if (!document.querySelector('.fg-copy-button') && 
+              (document.getElementById('deathDateLabel') || 
+               document.querySelector('.deathDate'))) {
+            addCopyButtonToFGPage();
+          }
         }
       });
       
-      // Start observing document for changes
+      // Start observing document for changes with options for better SPA detection
       observer.observe(document, { 
         childList: true, 
-        subtree: true 
+        subtree: true,
+        attributes: true,
+        characterData: true
       });
+      
+      // Set up a URL change detector for SPA navigation
+      let lastUrl = location.href;
+      new MutationObserver(() => {
+        const url = location.href;
+        if (url !== lastUrl) {
+          lastUrl = url;
+          // URL changed - check if we need to add the button
+          if (url.match(/findagrave\.com\/memorial\/\d+/)) {
+            // Small delay to let the page render
+            setTimeout(addCopyButtonToFGPage, 500);
+          }
+        }
+      }).observe(document, {subtree: true, childList: true});
     }
   }
   

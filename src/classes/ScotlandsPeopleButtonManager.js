@@ -1,6 +1,108 @@
 const ScotlandsPeopleButtonManager = (function() {
   const buttonId = 'scotlandspeople-button';
   
+  function addCopyButtonsToSearchResults() {
+    // Check if we're on a Scotland's People search results page
+    if (!window.location.href.includes('scotlandspeople.gov.uk/record-results/')) {
+      return;
+    }
+    
+    // Find all result rows
+    const resultRows = document.querySelectorAll('tr[id^="row_"]');
+    if (!resultRows.length) {
+      return;
+    }
+    
+    // Process each row
+    resultRows.forEach(row => {
+      // Skip if we already added a button to this row
+      if (row.querySelector('.sp-copy-button')) {
+        return;
+      }
+      
+      // Find the year and RD Name cells
+      const yearCell = row.querySelector('td:nth-child(6) .cell-notes');
+      const rdNameCell = row.querySelector('td:nth-child(8) .cell-notes');
+      
+      if (!yearCell || !rdNameCell) {
+        return;
+      }
+      
+      // Get the values
+      const deathYear = yearCell.textContent.trim();
+      const location = rdNameCell.textContent.trim();
+      
+      // Find the last cell (actions cell)
+      const actionsCell = row.querySelector('td:last-child');
+      if (!actionsCell) {
+        return;
+      }
+      
+      // Create copy button
+      const copyButton = document.createElement('p');
+      copyButton.className = 'sp-copy-button';
+      copyButton.innerHTML = '<a href="#" style="display: inline-block; margin-top: 5px;">📋 Copy info</a>';
+      copyButton.style.cursor = 'pointer';
+      
+      // Add click handler
+      copyButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Create the text to copy
+        const copyText = `From Scotland's People\nDeath year: ${deathYear}\nLocation: ${location}`;
+        
+        // Copy to clipboard
+        navigator.clipboard.writeText(copyText).then(() => {
+          // Show feedback
+          copyButton.innerHTML = '<a href="#" style="display: inline-block; margin-top: 5px; color: green;">✓ Copied</a>';
+          
+          // Reset after 1.5 seconds
+          setTimeout(() => {
+            copyButton.innerHTML = '<a href="#" style="display: inline-block; margin-top: 5px;">📋 Copy info</a>';
+          }, 1500);
+        });
+      });
+      
+      // Add the button to the actions cell
+      actionsCell.appendChild(copyButton);
+    });
+  }
+  
+  function checkForSearchResults() {
+    // Only run on ScotlandsPeople website
+    if (!window.location.href.includes('scotlandspeople.gov.uk')) {
+      return;
+    }
+    
+    // Function to check for search results and add copy buttons
+    function checkAndAddButtons(retryCount = 0) {
+      const resultTable = document.querySelector('table.search-result-table');
+      
+      if (resultTable) {
+        addCopyButtonsToSearchResults();
+      } else if (retryCount < 10) {
+        // Retry a few times with increasing delay
+        setTimeout(() => checkAndAddButtons(retryCount + 1), 500 + (retryCount * 200));
+      }
+    }
+    
+    // Run the check when URL contains record-results
+    if (window.location.href.includes('/record-results/')) {
+      checkAndAddButtons();
+      
+      // Also set up an observer for dynamic content
+      const observer = new MutationObserver(() => {
+        addCopyButtonsToSearchResults();
+      });
+      
+      // Start observing the document body
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    }
+  }
+  
   function getBirthDeathYears() {
     const spans = document.getElementsByClassName('normal');
     if (spans && spans.length > 1) {
@@ -180,8 +282,26 @@ const ScotlandsPeopleButtonManager = (function() {
     }
   }
   
+  // Function to initialize all Scotland's People features
+  function initialize() {
+    // Add search button on Bayanne
+    addScotlandsPeopleButton();
+    
+    // For ScotlandsPeople website features
+    if (window.location.href.includes('scotlandspeople.gov.uk')) {
+      // Handle form auto-filling
+      autoFillSearchForm();
+      
+      // Handle adding copy buttons to search results
+      checkForSearchResults();
+    }
+  }
+  
   return {
     addScotlandsPeopleButton: addScotlandsPeopleButton,
-    autoFillSearchForm: autoFillSearchForm
+    autoFillSearchForm: autoFillSearchForm,
+    addCopyButtonsToSearchResults: addCopyButtonsToSearchResults,
+    checkForSearchResults: checkForSearchResults,
+    initialize: initialize
   };
 })();

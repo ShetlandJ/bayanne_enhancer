@@ -22,11 +22,15 @@ const AncestryButtonManager = (function() {
     const deathDateElement = deathEventLine.querySelector('.deathDate');
     const deathDate = deathDateElement ? deathDateElement.textContent.trim() : '';
     
+    // Get the death place if available
+    const deathPlaceElement = deathEventLine.querySelector('.deathPlace');
+    const deathPlace = deathPlaceElement ? deathPlaceElement.textContent.trim() : '';
+    
     // Create copy button
     const copyButton = document.createElement('span');
     copyButton.className = 'ancestry-copy-button';
     copyButton.innerHTML = '📋'; // clipboard icon
-    copyButton.title = 'Copy URL and death date';
+    copyButton.title = 'Copy URL, death date and location';
     copyButton.style.cursor = 'pointer';
     copyButton.style.marginLeft = '10px';
     copyButton.style.fontSize = '16px';
@@ -35,9 +39,14 @@ const AncestryButtonManager = (function() {
     copyButton.addEventListener('click', function(e) {
       e.preventDefault();
       
-      // Get URL and death date
+      // Get URL and death information
       const url = window.location.href;
-      const copyText = `${url}\nDeath date: ${deathDate}`;
+      let copyText = `${url}\nDeath date: ${deathDate}`;
+      
+      // Add location if available
+      if (deathPlace) {
+        copyText += `\nLocation: ${deathPlace}`;
+      }
       
       // Copy to clipboard
       navigator.clipboard.writeText(copyText).then(() => {
